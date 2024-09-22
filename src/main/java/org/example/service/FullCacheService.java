@@ -14,6 +14,8 @@ import org.example.domain.entity.CountryLanguage;
 import org.example.repository.CityRepository;
 import org.example.service.mapper.CityMapper;
 import org.hibernate.SessionFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,9 +26,10 @@ import static java.util.Objects.nonNull;
 
 /**
  * <u>Full DB Cache</u> realisation from guide. <br>
- * Run {@code fullCacheTest()} method in Main to compare request processing speed from MySQL DB and Redis.
+ * Run {@code fullCacheTest()} method in Main to compare processing speed of MySQL DB and Redis requests.
  */
 public class FullCacheService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(FullCacheService.class);
     @Getter
     private final SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
     private final RedisClient redisClient = RedisUtil.getLettuceClient();
@@ -63,7 +66,8 @@ public class FullCacheService {
                 try {
                     sync.set(String.valueOf(cityCountry.getId()), jsonMapper.writeValueAsString(cityCountry));
                 } catch (JsonProcessingException e) {
-                    e.printStackTrace();
+                    LOGGER.error("Error during Json serialization for CityCountry in cache", e.getCause());
+                    throw new RuntimeException("Error during Json serialization");
                 }
             }
 
@@ -78,7 +82,8 @@ public class FullCacheService {
                 try {
                     jsonMapper.readValue(value, CityCountry.class);
                 } catch (JsonProcessingException e) {
-                    e.printStackTrace();
+                    LOGGER.error("Error during Json deserialization city from cache", e.getCause());
+                    throw new RuntimeException("Error during Json serialization");
                 }
             }
         }

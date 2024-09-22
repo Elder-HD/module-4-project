@@ -12,6 +12,5 @@ public class RedisUtil {
     static {
         lettuceClient = RedisClient.create(RedisURI.create("localhost", 6379));
         lettuceClient.connect();
-        System.out.println("\nConnected to Redis\n");
     }
 }
