@@ -1,8 +1,9 @@
-package org.example.domain;
+package org.example.domain.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.example.domain.enums.Continent;
 
 import java.math.BigDecimal;
 import java.util.Set;
@@ -16,50 +17,46 @@ public class Country {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(columnDefinition = "default ''", nullable = false)
     private String code;
 
-    @Column(name = "code_2", columnDefinition = "default ''", nullable = false)
-    private String code2;
+    @Column(name = "code_2")
+    private String alternativeCode;
 
-    @Column(columnDefinition = "default ''", nullable = false)
     private String name;
 
     @Enumerated(EnumType.ORDINAL)
-    @Column(columnDefinition = "default 0", nullable = false)
     private Continent continent;
 
-    @Column(columnDefinition = "default ''", nullable = false)
     private String region;
 
-    @Column(name = "surface_area", columnDefinition = "default 0.00", precision = 10, scale = 2, nullable = false)
+    @Column(name = "surface_area")
     private BigDecimal surfaceArea;
 
     @Column(name = "indep_year")
     private Short independenceYear;
 
-    @Column(columnDefinition = "default 0", nullable = false)
     private Integer population;
 
-    @Column(name = "life_expectancy", precision = 3, scale = 1)
+    @Column(name = "life_expectancy")
     private BigDecimal lifeExpectancy;
 
-    @Column(name = "gnp", precision = 10, scale = 2)
+    @Column(name = "gnp")
     private BigDecimal GNP;
 
-    @Column(name = "gnpo_id",  precision = 10, scale = 2)
+    @Column(name = "gnpo_id")
     private BigDecimal GNPOId;
 
-    @Column(name = "local_name", columnDefinition = "default ''", nullable = false)
+    @Column(name = "local_name")
     private String localName;
 
-    @Column(name = "government_form", columnDefinition = "default ''", nullable = false)
+    @Column(name = "government_form")
     private String governmentForm;
 
     @Column(name = "head_of_state")
     private String headOfState;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "capital")
     private City capital;
 
     @OneToMany(fetch = FetchType.EAGER)

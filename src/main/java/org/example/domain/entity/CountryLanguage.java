@@ -1,4 +1,4 @@
-package org.example.domain;
+package org.example.domain.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -17,17 +17,15 @@ public class CountryLanguage {
     private Integer id;
 
     @ManyToOne (cascade = CascadeType.ALL)
-    @JoinColumn(name = "country_id", nullable = false)
+    @JoinColumn(name = "country_id")
     private Country country;
 
-    @Column(columnDefinition = "default ''", nullable = false)
     private String language;
 
-    @Column(name = "is_official", columnDefinition = "BIT", nullable = false)
+    @Column(name = "is_official", columnDefinition = "BIT")
     @Type(type = "org.hibernate.type.NumericBooleanType")
     private Boolean isOfficial;
 
-    @Column(precision = 4, scale = 1, columnDefinition = "default 0.0", nullable = false)
     private BigDecimal percentage;
 
 

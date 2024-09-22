@@ -1,4 +1,4 @@
-package org.example.domain;
+package org.example.domain.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -13,17 +13,14 @@ public class City {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(nullable = false, columnDefinition = "default ''")
     private String name;
 
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "country_id", nullable = false)
+    @JoinColumn(name = "country_id")
     private Country country;
 
-    @Column(nullable = false, columnDefinition = "default ''")
     private String district;
 
-    @Column(nullable = false, columnDefinition = "default 0")
     private Integer population;
 
 }
