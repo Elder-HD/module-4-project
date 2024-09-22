@@ -6,13 +6,12 @@ import org.example.domain.entity.City;
 import org.example.domain.entity.Country;
 import org.example.domain.entity.CountryLanguage;
 
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 public class CityMapper {
 
-    public CityCountry toRedis(City city) {
+    public CityCountry toCityCountry(City city) {
         CityCountry res = new CityCountry();
         res.setId(city.getId());
         res.setName(city.getName());
@@ -40,7 +39,7 @@ public class CityMapper {
         return res;
     }
 
-    public City toCity (CityCountry cityCountry) {
+    public City toCity(CityCountry cityCountry) {
         City city = new City();
         city.setId(cityCountry.getId());
         city.setName(cityCountry.getName());

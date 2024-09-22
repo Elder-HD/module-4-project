@@ -2,17 +2,16 @@ package org.example.config;
 
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.RedisURI;
-import io.lettuce.core.api.StatefulRedisConnection;
 import lombok.Getter;
 
 
 public class RedisUtil {
     @Getter
-    private static final RedisClient redisClient;
+    private static final RedisClient lettuceClient;
 
     static {
-        redisClient = RedisClient.create(RedisURI.create("localhost", 6379));
-        redisClient.connect();
+        lettuceClient = RedisClient.create(RedisURI.create("localhost", 6379));
+        lettuceClient.connect();
         System.out.println("\nConnected to Redis\n");
     }
 }
