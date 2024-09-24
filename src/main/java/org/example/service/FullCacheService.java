@@ -11,6 +11,7 @@ import org.example.config.HibernateUtil;
 import org.example.config.RedisUtil;
 import org.example.domain.entity.City;
 import org.example.domain.entity.CountryLanguage;
+import org.example.domain.exceptions.EntityNotFoundException;
 import org.example.repository.CityRepository;
 import org.example.service.mapper.CityMapper;
 import org.hibernate.SessionFactory;
@@ -91,7 +92,10 @@ public class FullCacheService {
 
     public void testMysqlData(List<Integer> ids) {
         for (Integer id : ids) {
-            City city = cityRepository.getById(id);
+            City city = cityRepository.getById(id).orElseThrow(() -> {
+                LOGGER.error("City with id {} not found in DB",id);
+                return new EntityNotFoundException("City with id %s not found".formatted(id));
+            });
             Set<CountryLanguage> languages = city.getCountry().getLanguages();
         }
     }

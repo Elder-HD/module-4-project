@@ -7,6 +7,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
 import java.util.List;
+import java.util.Optional;
 
 public class CityRepository {
     private final SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
@@ -43,14 +44,14 @@ public class CityRepository {
         }
     }
 
-    public City getById(Integer id) {
+    public Optional<City> getById(Integer id) {
         try (Session session = sessionFactory.getCurrentSession()) {
             session.beginTransaction();
             City result = sessionFactory.getCurrentSession().createQuery("select c from City c join fetch c.country where c.id = :id", City.class)
                     .setParameter("id", id)
                     .getSingleResult();
             session.getTransaction().commit();
-            return result;
+            return Optional.ofNullable(result);
         }
     }
 

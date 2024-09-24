@@ -2,6 +2,7 @@ package org.example.service;
 
 import org.example.cache.JedisLFUCache;
 import org.example.domain.entity.City;
+import org.example.domain.exceptions.EntityNotFoundException;
 import org.example.repository.CityRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,9 +12,9 @@ public class CityService {
     private final CityRepository cityRepository;
     private final JedisLFUCache jedis;
 
-    public CityService() {
-        this.cityRepository = new CityRepository();
-        this.jedis = new JedisLFUCache(1);
+    public CityService(CityRepository cityRepository, JedisLFUCache jedis) {
+        this.cityRepository = cityRepository;
+        this.jedis = jedis;
     }
 
     public City getCityById(int id) {
@@ -29,10 +30,11 @@ public class CityService {
             city = jedis.getCityFromCache(cityKey);
         } else {
             LOGGER.debug("City with key \"{}\" wasn't found in cache. Try to take from DB...", cityKey);
-            city = cityRepository.getById(id);
-            if (city != null) {
-                jedis.cacheCity(city, cityKey);
-            }
+            city = cityRepository.getById(id).orElseThrow(() -> {
+                LOGGER.error("City with id {} not found in DB",id);
+                return new EntityNotFoundException("City with id %s not found".formatted(id));
+            });
+            jedis.cacheCity(city, cityKey);
         }
         return city;
     }

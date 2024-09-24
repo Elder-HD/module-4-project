@@ -1,7 +1,9 @@
 package org.example;
 
 import org.example.cache.CityCountry;
+import org.example.cache.JedisLFUCache;
 import org.example.domain.entity.City;
+import org.example.repository.CityRepository;
 import org.example.service.CityService;
 import org.example.service.FullCacheService;
 
@@ -11,12 +13,12 @@ public class CacheMain {
 
 
     public static void main(String[] args) {
-//        fullCacheTest();
-        lfuCacheTest();
+        fullCacheTest();
+//        lfuCacheTest(); // run 2 times to see getting cached values
     }
 
     private static void lfuCacheTest() {
-        CityService cityService = new CityService();
+        CityService cityService = new CityService(new CityRepository(), new JedisLFUCache(1));
         cityService.getCityById(1);
         cityService.getCityById(2);
         cityService.getCityById(3);
