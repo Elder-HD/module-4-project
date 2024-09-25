@@ -1,7 +1,6 @@
 package org.example.repository;
 
 import org.example.config.HibernateUtil;
-import org.example.domain.entity.City;
 import org.example.domain.entity.Country;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;

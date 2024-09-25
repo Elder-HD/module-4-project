@@ -79,4 +79,8 @@ public class JedisLFUCache {
             LOGGER.debug("City {} removed from cache", cityKey);
         }
     }
+
+    public void removeFromCache(String cityKey) {
+        jedis.del(cityKey);
+    }
 }

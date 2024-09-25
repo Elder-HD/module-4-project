@@ -31,7 +31,7 @@ public class CityService {
         } else {
             LOGGER.debug("City with key \"{}\" wasn't found in cache. Try to take from DB...", cityKey);
             city = cityRepository.getById(id).orElseThrow(() -> {
-                LOGGER.error("City with id {} not found in DB",id);
+                LOGGER.error("City with id {} not found in DB", id);
                 return new EntityNotFoundException("City with id %s not found".formatted(id));
             });
             jedis.cacheCity(city, cityKey);
@@ -39,6 +39,10 @@ public class CityService {
         return city;
     }
 
-    //TODO: On the future: Add other CRUD methods.
+    public void deleteById(int id) {
+        cityRepository.delete(getCityById(id));
+        String cityKey = "city:" + id;
+        jedis.removeFromCache(cityKey);
+    }
 
 }
