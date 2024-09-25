@@ -9,9 +9,10 @@ import org.hibernate.SessionFactory;
 import java.util.List;
 import java.util.Optional;
 
-public class CityRepository {
+public class CityRepository implements CrudRepository<City> {
     private final SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
 
+    @Override
     public List<City> getItems(int offset, int limit) {
         try (Session session = sessionFactory.getCurrentSession()) {
             session.beginTransaction();
@@ -25,6 +26,7 @@ public class CityRepository {
         }
     }
 
+    @Override
     public List<City> getAll() {
         try (Session session = sessionFactory.getCurrentSession()) {
             session.beginTransaction();
@@ -35,6 +37,7 @@ public class CityRepository {
         }
     }
 
+    @Override
     public int getTotalCount() {
         try (Session session = sessionFactory.getCurrentSession()) {
             session.beginTransaction();
@@ -44,6 +47,7 @@ public class CityRepository {
         }
     }
 
+    @Override
     public Optional<City> getById(Integer id) {
         try (Session session = sessionFactory.getCurrentSession()) {
             session.beginTransaction();
@@ -55,4 +59,32 @@ public class CityRepository {
         }
     }
 
+    @Override
+    public City save(City city) {
+        try (Session session = sessionFactory.getCurrentSession()) {
+            session.beginTransaction();
+            session.persist(city);
+            session.getTransaction().commit();
+            return city;
+        }
+    }
+
+    @Override
+    public City update(City city) {
+        try (Session session = sessionFactory.getCurrentSession()) {
+            session.beginTransaction();
+            session.merge(city);
+            session.getTransaction().commit();
+        }
+        return city;
+    }
+
+    @Override
+    public void delete(City city) {
+        try (Session session = sessionFactory.getCurrentSession()) {
+            session.beginTransaction();
+            session.remove(city);
+            session.getTransaction().commit();
+        }
+    }
 }
