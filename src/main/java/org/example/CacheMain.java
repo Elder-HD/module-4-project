@@ -1,19 +1,16 @@
 package org.example;
 
-import org.example.cache.CityCountry;
 import org.example.cache.JedisLFUCache;
-import org.example.domain.entity.City;
 import org.example.repository.CityRepository;
 import org.example.service.CityService;
 import org.example.service.FullCacheService;
-
-import java.util.List;
 
 public class CacheMain {
 
 
     public static void main(String[] args) {
-        fullCacheTest();
+        FullCacheService fullCache = new FullCacheService();
+        fullCache.fullCacheTest();
 //        lfuCacheTest(); // run 2 times to see getting cached values
     }
 
@@ -29,30 +26,5 @@ public class CacheMain {
         cityService.getCityById(6);
         cityService.getCityById(7);
     }
-
-    private static void fullCacheTest() {
-        FullCacheService cacheService = new FullCacheService();
-        List<City> allCities = cacheService.fetchData();
-        List<CityCountry> preparedData = cacheService.transformData(allCities);
-        cacheService.pushToRedis(preparedData);
-
-        cacheService.getSessionFactory().getCurrentSession().close();
-
-        List<Integer> ids = List.of(3, 100, 441, 6, 2200, 1323, 10, 102, 2532, 2533);
-
-        long startRedis = System.currentTimeMillis();
-        cacheService.testRedisData(ids);
-        long stopRedis = System.currentTimeMillis();
-
-        long startMysql = System.currentTimeMillis();
-        cacheService.testMysqlData(ids);
-        long stopMysql = System.currentTimeMillis();
-
-        System.out.printf("%s:\t%d ms\n", "Redis", (stopRedis - startRedis));
-        System.out.printf("%s:\t%d ms\n", "MySQL", (stopMysql - startMysql));
-
-        cacheService.shutdown();
-    }
-
 
 }

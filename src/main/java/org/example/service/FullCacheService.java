@@ -18,7 +18,6 @@ import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -45,15 +44,33 @@ public class FullCacheService {
         cityMapper = new CityMapper();
     }
 
+    public void fullCacheTest() {
+        FullCacheService cacheService = new FullCacheService();
+        List<City> allCities = cacheService.fetchData();
+        List<CityCountry> preparedData = cacheService.transformData(allCities);
+        cacheService.pushToRedis(preparedData);
+
+        cacheService.getSessionFactory().getCurrentSession().close();
+
+        List<Integer> ids = List.of(3, 100, 441, 6, 2200, 1323, 10, 102, 2532, 2533);
+
+        long startRedis = System.currentTimeMillis();
+        cacheService.testRedisData(ids);
+        long stopRedis = System.currentTimeMillis();
+
+        long startMysql = System.currentTimeMillis();
+        cacheService.testMysqlData(ids);
+        long stopMysql = System.currentTimeMillis();
+
+        System.out.printf("%s:\t%d ms\n", "Redis", (stopRedis - startRedis));
+        System.out.printf("%s:\t%d ms\n", "MySQL", (stopMysql - startMysql));
+
+        cacheService.shutdown();
+    }
 
     public List<City> fetchData() {
-        List<City> allCities = new ArrayList<>();
-        int totalCount = cityRepository.getTotalCount();
-        int step = 500;
-        for (int i = 0; i < totalCount; i += step) {
-            allCities.addAll(cityRepository.getItems(i, step));
-        }
-        return allCities;
+        List<City> cities = cityRepository.getAll();
+        return cities;
     }
 
     public List<CityCountry> transformData(List<City> cities) {
