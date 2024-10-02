@@ -16,8 +16,8 @@ public class CityRepository implements CrudRepository<City> {
     public List<City> getItems(int offset, int limit) {
         try (Session session = sessionFactory.getCurrentSession()) {
             session.beginTransaction();
-            sessionFactory.getCurrentSession().createQuery("select c from Country c join fetch c.languages", Country.class).list();
-            List<City> cities = sessionFactory.getCurrentSession().createQuery("select c from City c", City.class)
+            List<Country> countries = session.createQuery("select c from Country c join fetch c.languages", Country.class).list();
+            List<City> cities = session.createQuery("select c from City c", City.class)
                     .setFirstResult(offset)
                     .setMaxResults(limit)
                     .list();
@@ -30,7 +30,8 @@ public class CityRepository implements CrudRepository<City> {
     public List<City> getAll() {
         try (Session session = sessionFactory.getCurrentSession()) {
             session.beginTransaction();
-            List<City> cities = sessionFactory.getCurrentSession().createQuery("select c from City c", City.class)
+            List<Country> countries = session.createQuery("select c from Country c join fetch c.languages", Country.class).list();
+            List<City> cities = session.createQuery("select c from City c", City.class)
                     .list();
             session.getTransaction().commit();
             return cities;
@@ -41,7 +42,7 @@ public class CityRepository implements CrudRepository<City> {
     public int getTotalCount() {
         try (Session session = sessionFactory.getCurrentSession()) {
             session.beginTransaction();
-            Long result = sessionFactory.getCurrentSession().createQuery("select count(c) from City c", Long.class).getSingleResult();
+            Long result = session.createQuery("select count(c) from City c", Long.class).getSingleResult();
             session.getTransaction().commit();
             return Math.toIntExact(result);
         }
@@ -51,11 +52,9 @@ public class CityRepository implements CrudRepository<City> {
     public Optional<City> getById(Integer id) {
         try (Session session = sessionFactory.getCurrentSession()) {
             session.beginTransaction();
-            City result = sessionFactory.getCurrentSession().createQuery("select c from City c join fetch c.country where c.id = :id", City.class)
-                    .setParameter("id", id)
-                    .getSingleResult();
+            City city = session.find(City.class, id);
             session.getTransaction().commit();
-            return Optional.ofNullable(result);
+            return Optional.ofNullable(city);
         }
     }
 

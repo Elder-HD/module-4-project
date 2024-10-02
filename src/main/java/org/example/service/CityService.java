@@ -24,7 +24,7 @@ public class CityService {
         }
         City city;
         String cityKey = "city:" + id;
-        LOGGER.info("request city with key: {}", cityKey);
+        LOGGER.info("request city with key: \"{}\"", cityKey);
         if (jedis.isCityInCache(cityKey)) {
             LOGGER.debug("City with key \"{}\" was found in cache. Try to take from cache...", cityKey);
             city = jedis.getCityFromCache(cityKey);

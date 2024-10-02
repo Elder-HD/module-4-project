@@ -15,7 +15,7 @@ public class CountryRepository implements CrudRepository<Country> {
     public List<Country> getItems(int offset, int limit) {
         try (Session session = sessionFactory.getCurrentSession()) {
             session.beginTransaction();
-            List<Country> countries = sessionFactory.getCurrentSession().createQuery("select c from Country c join fetch c.languages", Country.class)
+            List<Country> countries = session.createQuery("select c from Country c join fetch c.languages", Country.class)
                     .setFirstResult(offset)
                     .setMaxResults(limit)
                     .list();
@@ -27,7 +27,7 @@ public class CountryRepository implements CrudRepository<Country> {
     public List<Country> getAll() {
         try (Session session = sessionFactory.getCurrentSession()) {
             session.beginTransaction();
-            List<Country> list = sessionFactory.getCurrentSession().createQuery("select c from Country c join fetch c.languages", Country.class).list();
+            List<Country> list = session.createQuery("select c from Country c join fetch c.languages", Country.class).list();
             session.getTransaction().commit();
             return list;
         }
@@ -37,7 +37,7 @@ public class CountryRepository implements CrudRepository<Country> {
     public int getTotalCount() {
         try (Session session = sessionFactory.getCurrentSession()) {
             session.beginTransaction();
-            Long result = sessionFactory.getCurrentSession().createQuery("select count(c) from Country c", Long.class).getSingleResult();
+            Long result = session.createQuery("select count(c) from Country c", Long.class).getSingleResult();
             session.getTransaction().commit();
             return Math.toIntExact(result);
         }
@@ -47,11 +47,9 @@ public class CountryRepository implements CrudRepository<Country> {
     public Optional<Country> getById(Integer id) {
         try (Session session = sessionFactory.getCurrentSession()) {
             session.beginTransaction();
-            Country result = sessionFactory.getCurrentSession().createQuery("select c from Country c where c.id = :id", Country.class)
-                    .setParameter("id", id)
-                    .getSingleResult();
+            Country country = session.find(Country.class, id);
             session.getTransaction().commit();
-            return Optional.ofNullable(result);
+            return Optional.ofNullable(country);
         }
     }
 

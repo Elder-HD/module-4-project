@@ -15,12 +15,13 @@ public class JedisLFUCache {
     private final Jedis jedis;
     private final CityMapper cityMapper;
     private final ObjectMapper jsonMapper;
-    public final int CACHE_CAPACITY = 5;
+    private static final int PORT = 6379;
+    private static final int CACHE_CAPACITY = 5;
 
     public JedisLFUCache(int db) {
         this.cityMapper = new CityMapper();
         this.jsonMapper = new ObjectMapper();
-        this.jedis = new Jedis("localhost", 6379);
+        this.jedis = new Jedis("localhost", PORT);
         jedis.select(db);
         LOGGER.info("Connection with Jedis client established. {} DB is using", db);
     }
@@ -31,7 +32,7 @@ public class JedisLFUCache {
 
     public City getCityFromCache(String cityKey) {
         jedis.hincrBy(cityKey, "count", 1);
-        LOGGER.debug("City with {} was requested {} times", cityKey, jedis.hget(cityKey, "count"));
+        LOGGER.info("City with key \"{}\" was requested {} times", cityKey, jedis.hget(cityKey, "count"));
         City city;
         try {
             String cityJson = jedis.hget(cityKey, "value");
