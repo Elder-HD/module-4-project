@@ -3,6 +3,7 @@ package org.example.cache;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.domain.entity.City;
+import org.example.domain.exceptions.EntityConversionException;
 import org.example.service.mapper.CityMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,12 +12,12 @@ import redis.clients.jedis.Jedis;
 import java.util.Set;
 
 public class JedisLFUCache {
+    private static final int CACHE_CAPACITY = 5;
+    private static final int PORT = 6379;
     private static final Logger LOGGER = LoggerFactory.getLogger(JedisLFUCache.class);
     private final Jedis jedis;
     private final CityMapper cityMapper;
     private final ObjectMapper jsonMapper;
-    private static final int PORT = 6379;
-    private static final int CACHE_CAPACITY = 5;
 
     public JedisLFUCache(int db) {
         this.cityMapper = new CityMapper();
@@ -40,7 +41,7 @@ public class JedisLFUCache {
             city = cityMapper.toCity(cityCountry);
         } catch (JsonProcessingException e) {
             LOGGER.error("Error during Json deserialization for city {}", cityKey, e.getCause());
-            throw new RuntimeException("Error during Json deserialization");
+            throw new EntityConversionException("Error during Json deserialization");
         }
         return city;
     }
@@ -57,7 +58,7 @@ public class JedisLFUCache {
             LOGGER.debug("City {} added to cache", cityKey);
         } catch (JsonProcessingException e) {
             LOGGER.error("Error during Json serialization for city {}", cityKey, e.getCause());
-            throw new RuntimeException("Error during Json serialization");
+            throw new EntityConversionException("Error during Json serialization");
         }
     }
 

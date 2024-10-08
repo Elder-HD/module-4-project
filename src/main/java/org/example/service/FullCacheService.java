@@ -11,6 +11,7 @@ import org.example.config.HibernateUtil;
 import org.example.config.RedisUtil;
 import org.example.domain.entity.City;
 import org.example.domain.entity.CountryLanguage;
+import org.example.domain.exceptions.EntityConversionException;
 import org.example.domain.exceptions.EntityNotFoundException;
 import org.example.repository.CityRepository;
 import org.example.service.mapper.CityMapper;
@@ -85,7 +86,7 @@ public class FullCacheService {
                     sync.set(String.valueOf(cityCountry.getId()), jsonMapper.writeValueAsString(cityCountry));
                 } catch (JsonProcessingException e) {
                     LOGGER.error("Error during Json serialization for CityCountry in cache", e.getCause());
-                    throw new RuntimeException("Error during Json serialization");
+                    throw new EntityConversionException("Error during Json serialization");
                 }
             }
 
@@ -101,7 +102,7 @@ public class FullCacheService {
                     jsonMapper.readValue(value, CityCountry.class);
                 } catch (JsonProcessingException e) {
                     LOGGER.error("Error during Json deserialization city from cache", e.getCause());
-                    throw new RuntimeException("Error during Json serialization");
+                    throw new EntityConversionException("Error during Json serialization");
                 }
             }
         }

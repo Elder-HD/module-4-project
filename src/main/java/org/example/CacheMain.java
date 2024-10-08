@@ -11,7 +11,7 @@ public class CacheMain {
     public static void main(String[] args) {
         FullCacheService fullCache = new FullCacheService();
         fullCache.fullCacheTest();
-//        lfuCacheTest(); // run 2 times to see getting cached values
+        lfuCacheTest();
     }
 
     private static void lfuCacheTest() {
