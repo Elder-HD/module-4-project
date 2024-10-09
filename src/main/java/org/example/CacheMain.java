@@ -2,29 +2,21 @@ package org.example;
 
 import org.example.cache.JedisLFUCache;
 import org.example.repository.CityRepository;
+import org.example.service.CacheService;
 import org.example.service.CityService;
 import org.example.service.FullCacheService;
 
 public class CacheMain {
-
+    public static final int JEDIS_DB = 2;
+    public static final int JEDIS_CACHE_CAPACITY = 5;
 
     public static void main(String[] args) {
-        FullCacheService fullCache = new FullCacheService();
-        fullCache.fullCacheTest();
-        lfuCacheTest();
-    }
+        CacheService fullCache = new FullCacheService();
+        fullCache.process();
 
-    private static void lfuCacheTest() {
-        CityService cityService = new CityService(new CityRepository(), new JedisLFUCache(1));
-        cityService.getCityById(1);
-        cityService.getCityById(2);
-        cityService.getCityById(3);
-        cityService.getCityById(3);
-        cityService.getCityById(4);
-        cityService.getCityById(1);
-        cityService.getCityById(5);
-        cityService.getCityById(6);
-        cityService.getCityById(7);
+        CityRepository repository = new CityRepository();
+        JedisLFUCache jedis = new JedisLFUCache(JEDIS_DB, JEDIS_CACHE_CAPACITY);
+        CacheService lfuCache = new CityService(repository, jedis);
+        lfuCache.process();
     }
-
 }

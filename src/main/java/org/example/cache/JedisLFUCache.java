@@ -12,19 +12,24 @@ import redis.clients.jedis.Jedis;
 import java.util.Set;
 
 public class JedisLFUCache {
-    private static final int CACHE_CAPACITY = 5;
     private static final int PORT = 6379;
     private static final Logger LOGGER = LoggerFactory.getLogger(JedisLFUCache.class);
     private final Jedis jedis;
     private final CityMapper cityMapper;
     private final ObjectMapper jsonMapper;
+    private final int cacheCapacity;
 
-    public JedisLFUCache(int db) {
+    public JedisLFUCache(int db, int cacheCapacity) {
+        if (db < 0 || db > 16) {
+            LOGGER.error("DB index is out of range. Only 0-15 DBs are available. Current DB: {}", db);
+            throw new IllegalArgumentException("DB index is out of range. Only 0-15 DBs are available");
+        }
         this.cityMapper = new CityMapper();
         this.jsonMapper = new ObjectMapper();
         this.jedis = new Jedis("localhost", PORT);
+        this.cacheCapacity = cacheCapacity;
         jedis.select(db);
-        LOGGER.info("Connection with Jedis client established. {} DB is using", db);
+        LOGGER.info("Connection with Jedis client established. {} DB is using. Cache capacity = {}", db, cacheCapacity);
     }
 
     public boolean isCityInCache(String cityKey) {
@@ -47,7 +52,7 @@ public class JedisLFUCache {
     }
 
     public void cacheCity(City city, String cityKey) {
-        if (jedis.keys("city:*").size() >= CACHE_CAPACITY) {
+        if (jedis.keys("city:*").size() >= cacheCapacity) {
             removeLeastFrequentlyUsedCity();
         }
         try {
@@ -64,7 +69,7 @@ public class JedisLFUCache {
 
     public void removeLeastFrequentlyUsedCity() {
         Set<String> countKeys = jedis.keys("city:*");
-        LOGGER.debug("{} cities already cached. Capacity = {}", countKeys.size(), CACHE_CAPACITY);
+        LOGGER.debug("{} cities already cached. Capacity = {}", countKeys.size(), cacheCapacity);
 
         String cityKey = null;
         int minCount = Integer.MAX_VALUE;
@@ -84,5 +89,9 @@ public class JedisLFUCache {
 
     public void removeFromCache(String cityKey) {
         jedis.del(cityKey);
+    }
+
+    public void flushCache() {
+        jedis.flushDB();
     }
 }

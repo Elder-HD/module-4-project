@@ -29,7 +29,7 @@ import static java.util.Objects.nonNull;
  * <u>Full DB Cache</u> realisation from guide. <br>
  * Run {@code fullCacheTest()} method in Main to compare processing speed of MySQL DB and Redis requests.
  */
-public class FullCacheService {
+public class FullCacheService implements CacheService {
     private static final Logger LOGGER = LoggerFactory.getLogger(FullCacheService.class);
     @Getter
     private final SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
@@ -45,7 +45,8 @@ public class FullCacheService {
         cityMapper = new CityMapper();
     }
 
-    public void fullCacheTest() {
+    @Override
+    public void process() {
         FullCacheService cacheService = new FullCacheService();
         List<City> allCities = cacheService.fetchData();
         List<CityCountry> preparedData = cacheService.transformData(allCities);

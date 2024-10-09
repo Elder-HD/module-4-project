@@ -7,14 +7,23 @@ import org.example.repository.CityRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class CityService {
+import java.util.List;
+
+public class CityService implements CacheService {
     private static final Logger LOGGER = LoggerFactory.getLogger(CityService.class);
     private final CityRepository cityRepository;
-    private final JedisLFUCache jedis;
+    private final JedisLFUCache jedisLFU;
 
-    public CityService(CityRepository cityRepository, JedisLFUCache jedis) {
+    public CityService(CityRepository cityRepository, JedisLFUCache jedisLFU) {
         this.cityRepository = cityRepository;
-        this.jedis = jedis;
+        this.jedisLFU = jedisLFU;
+    }
+
+    @Override
+    public void process() {
+        jedisLFU.flushCache();
+        List<Integer> cityIds = List.of(1, 2, 2, 2, 2, 3, 3, 3, 4, 1, 5, 5, 5, 6, 7, 2, 8, 9, 10, 10, 6);
+        cityIds.forEach(this::getCityById);
     }
 
     public City getCityById(int id) {
@@ -25,16 +34,16 @@ public class CityService {
         City city;
         String cityKey = "city:" + id;
         LOGGER.info("request city with key: \"{}\"", cityKey);
-        if (jedis.isCityInCache(cityKey)) {
+        if (jedisLFU.isCityInCache(cityKey)) {
             LOGGER.debug("City with key \"{}\" was found in cache. Try to take from cache...", cityKey);
-            city = jedis.getCityFromCache(cityKey);
+            city = jedisLFU.getCityFromCache(cityKey);
         } else {
             LOGGER.debug("City with key \"{}\" wasn't found in cache. Try to take from DB...", cityKey);
             city = cityRepository.getById(id).orElseThrow(() -> {
                 LOGGER.error("City with id {} not found in DB", id);
                 return new EntityNotFoundException("City with id %s not found".formatted(id));
             });
-            jedis.cacheCity(city, cityKey);
+            jedisLFU.cacheCity(city, cityKey);
         }
         return city;
     }
@@ -42,7 +51,6 @@ public class CityService {
     public void deleteById(int id) {
         cityRepository.delete(getCityById(id));
         String cityKey = "city:" + id;
-        jedis.removeFromCache(cityKey);
+        jedisLFU.removeFromCache(cityKey);
     }
-
 }
